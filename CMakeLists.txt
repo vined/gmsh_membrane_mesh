@@ -7,4 +7,4 @@ include_directories(src)
 
 add_executable(mesh
         src/main.cc
-        src/parameters-utils.cc src/parameters-utils.h)
+        src/parameters-utils.cc src/parameters-utils.h src/timing-utils.cc src/timing-utils.h)

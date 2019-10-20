@@ -1,16 +1,27 @@
+#include <chrono>
 #include <iostream>
 
 #include "lib/gmsh.h"
 
 #include "parameters-utils.h"
+#include "timing-utils.h"
 
 
 int main(int argc, char *argv[]) {
+    auto start = std::chrono::high_resolution_clock::now();
+
+
     std::cout << "Reading prameters file \"" << argv[1] << "\"" << std::endl;
+    auto startParameters = std::chrono::high_resolution_clock::now();
 
     parameters params = readParameters(argv[1]);
     std::cout << params.toString() << std::endl;
 
+    std::cout << "Done reading parameters. Duration: " << getDuration(startParameters) << std::endl;
+
+
+    std::cout << "Generating mesh" << std::endl;
+    auto startGeneratingMesh = std::chrono::high_resolution_clock::now();
 
     gmsh::initialize(argc, argv);
     gmsh::option::setNumber("General.Terminal", 1);
@@ -35,10 +46,12 @@ int main(int argc, char *argv[]) {
                                    {{1, 2, 3, // triangle 1: nodes 1, 2, 3
                                             1, 3, 4}}); // triangle 2: nodes 1, 3, 4
 
-    // export the mesh ; use explore.cpp to read and examine the mesh
-    gmsh::write("test.msh");
+//    gmsh::write("result.msh");
 
     gmsh::finalize();
 
-    std::cout << "End." << std::endl;
+    std::cout << "Done generating mesh. Duration: " << getDuration(startGeneratingMesh) << std::endl;
+
+
+    std::cout << "End. Total duration: " << getDuration(start) << std::endl;
 }
