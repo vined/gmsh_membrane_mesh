@@ -51,14 +51,17 @@ int main(int argc, char *argv[]) {
     double lcar2 = .01;
     double lcar3 = .02;
 
+    // Set mesh for base
     model::getEntities(ov, 0);
     model::mesh::setSize(ov, lcar1);
 
+    // Set finer mesh around hole
     double eps = 0.3;
     model::getEntitiesInBoundingBox(0.5 - eps, 0.5 - eps, -params.h - eps,
                                     0.5 + eps, 0.5 + eps, params.h*3 + eps, ov, 0);
     model::mesh::setSize(ov, lcar2);
 
+    // Set coarser mesh for hole
     model::getBoundary({{3, hole}}, ov, false, false, true);
     model::mesh::setSize(ov, lcar3);
 
