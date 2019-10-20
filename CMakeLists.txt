@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD 11)
 include_directories(src)
 
 add_executable(mesh
-    src/main.cc
-)
+        src/main.cc
+        src/parameters-utils.cc src/parameters-utils.h)

@@ -1,13 +1,14 @@
 CXX=g++
 CXXFLAGS=-std=c++11
 
-objects = main.o
+objects = main.o \
+    parameters-utils.o
 
 mesh: $(objects)
 	$(CXX) $(CXXFLAGS) $(objects) -o mesh -Llib -lgmsh
 
-#main.o: gmsh.h
-#intervals.o: intervals.h
+main.o: parameters-utils.h
+parameters-utils.o: parameters-utils.h
 
 clean:
 	-rm mesh *.o

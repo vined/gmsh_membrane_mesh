@@ -1,8 +1,16 @@
 #include <iostream>
+
 #include "lib/gmsh.h"
 
+#include "parameters-utils.h"
+
+
 int main(int argc, char *argv[]) {
-    std::cout << "Reading file \"" << argv[1] << "\"" << std::endl;
+    std::cout << "Reading prameters file \"" << argv[1] << "\"" << std::endl;
+
+    parameters params = readParameters(argv[1]);
+    std::cout << params.toString() << std::endl;
+
 
     gmsh::initialize(argc, argv);
     gmsh::option::setNumber("General.Terminal", 1);
