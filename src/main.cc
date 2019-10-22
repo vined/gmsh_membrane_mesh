@@ -27,29 +27,31 @@ int main(int argc, char *argv[]) {
 
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 1);
-    gmsh::model::add("mebrane-mesh");
+    gmsh::model::add("membrane-mesh");
 
 
     std::cout << "Adding base" << std::endl;
 
 
-    int bigBox = factory::addBox(0, 0, 0, params.l, params.l, params.h);
+    int membrane = factory::addBox(0, 0, 0, params.v0.first, params.v0.second, params.h_membrane);
+    int defect = factory::addCylinder(params.v0.first / 2., params.v0.second / 2., -params.h_membrane, 0, 0, params.h_membrane * 3., params.defects[0].second);
 
-    int hole = factory::addCylinder(params.l / 2., params.l / 2., -params.h, 0, 0, params.h*3., params.r);
+    std::vector<std::pair<int, int>> ov;
+    std::vector<std::vector<std::pair<int, int>>> ovv;
+    factory::cut({{3, membrane}}, {{3, defect}}, ov, ovv, 3, true, false);
 
-    std::vector<std::pair<int, int> > ov;
-    std::vector<std::vector<std::pair<int, int> > > ovv;
-    factory::cut({{3, bigBox}}, {{3, hole}}, ov, ovv, 3, true, false);
-
+    // Add physical groups
+    // int membraneGroup = model::addPhysicalGroup(3, {3});
+    // model::setPhysicalName(3, membraneGroup, "membrane");
 
     // synchronize the CAD model with the Gmsh model
     factory::synchronize();
 
 
     std::cout << "Setting meshing parameters" << std::endl;
-    double lcar1 = .1;
-    double lcar2 = .01;
-    double lcar3 = .02;
+    double lcar1 = 10;
+    double lcar2 = 1;
+    double lcar3 = 2;
 
     // Set mesh for base
     model::getEntities(ov, 0);
@@ -57,12 +59,12 @@ int main(int argc, char *argv[]) {
 
     // Set finer mesh around hole
     double eps = 0.3;
-    model::getEntitiesInBoundingBox(0.5 - eps, 0.5 - eps, -params.h - eps,
-                                    0.5 + eps, 0.5 + eps, params.h*3 + eps, ov, 0);
+    model::getEntitiesInBoundingBox(0.5 - eps, 0.5 - eps, -params.h_membrane - eps,
+                                    0.5 + eps, 0.5 + eps, params.h_membrane * 3 + eps, ov, 0);
     model::mesh::setSize(ov, lcar2);
 
     // Set coarser mesh for hole
-    model::getBoundary({{3, hole}}, ov, false, false, true);
+    model::getBoundary({{3, defect}}, ov, false, false, true);
     model::mesh::setSize(ov, lcar3);
 
 
