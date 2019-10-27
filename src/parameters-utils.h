@@ -25,7 +25,6 @@ const std::string V3 = "v3";
 const std::string V4 = "v4";
 const std::string V5 = "v5";
 
-const std::string DEFECTS = "defects";
 const std::string DEFECTS_START_LINE = "# -- Defects list";
 
 
@@ -35,13 +34,7 @@ struct parameters {
     double h_sub_membrane;
     double h_hemholtz;
 
-    std::pair<double, double> v0;
-    std::pair<double, double> v1;
-    std::pair<double, double> v2;
-    std::pair<double, double> v3;
-    std::pair<double, double> v4;
-    std::pair<double, double> v5;
-
+    std::vector<std::pair<double, double>> vertices;
     std::vector<std::pair<std::pair<double, double>, double>> defects;
 
     parameters() {}
@@ -52,12 +45,7 @@ struct parameters {
             double _h_sub_membrane,
             double _h_hemholtz,
 
-            std::pair<double, double> _v0,
-            std::pair<double, double> _v1,
-            std::pair<double, double> _v2,
-            std::pair<double, double> _v3,
-            std::pair<double, double> _v4,
-            std::pair<double, double> _v5,
+            std::vector<std::pair<double, double>> _vertices,
 
             std::vector<std::pair<std::pair<double, double>, double>> _defects
     ) {
@@ -66,13 +54,7 @@ struct parameters {
         h_sub_membrane = _h_sub_membrane;
         h_hemholtz = _h_hemholtz;
 
-        v0 = _v0;
-        v1 = _v1;
-        v2 = _v2;
-        v3 = _v3;
-        v4 = _v4;
-        v5 = _v5;
-
+        vertices = _vertices;
         defects = _defects;
     }
 
@@ -83,12 +65,9 @@ struct parameters {
         std::cout << H_SUB_MEMBRANE << " = " << h_sub_membrane << std::endl;
         std::cout << H_HEMHOLTZ << " = " << h_hemholtz << std::endl;
 
-        std::cout << V0 << " = " << v0.first << ", " << v0.second << std::endl;
-        std::cout << V1 << " = " << v1.first << ", " << v1.second << std::endl;
-        std::cout << V2 << " = " << v2.first << ", " << v2.second << std::endl;
-        std::cout << V3 << " = " << v3.first << ", " << v3.second << std::endl;
-        std::cout << V4 << " = " << v4.first << ", " << v4.second << std::endl;
-        std::cout << V5 << " = " << v5.first << ", " << v5.second << std::endl;
+        for (auto v: vertices) {
+            std::cout << " x=" << v.first << ", y=" << v.second << std::endl;
+        }
 
         std::cout << +"Defects:" << std::endl;
         for (auto d: defects) {

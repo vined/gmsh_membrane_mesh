@@ -67,6 +67,17 @@ std::pair<double, double> parsePoint(std::string pointStr) {
     };
 };
 
+std::vector<std::pair<double, double>> parseVertices(std::vector<std::pair<std::string, std::string>> params) {
+    return {
+            parsePoint(getParamByName(params, V0)),
+            parsePoint(getParamByName(params, V1)),
+            parsePoint(getParamByName(params, V2)),
+            parsePoint(getParamByName(params, V3)),
+            parsePoint(getParamByName(params, V4)),
+            parsePoint(getParamByName(params, V5)),
+    };
+};
+
 std::pair<std::pair<double, double>, double> parseCoordAndRadius(std::string pointStr) {
     auto x_rest = splitBy(pointStr, VALUES_SEPARATOR);
     auto y_r = splitBy(x_rest.second, VALUES_SEPARATOR);
@@ -99,13 +110,7 @@ parameters parseParameters(std::vector<std::pair<std::string, std::string>> para
             toDouble(getParamByName(params, H_SUB_MEMBRANE)),
             toDouble(getParamByName(params, H_HEMHOLTZ)),
 
-            parsePoint(getParamByName(params, V0)),
-            parsePoint(getParamByName(params, V1)),
-            parsePoint(getParamByName(params, V2)),
-            parsePoint(getParamByName(params, V3)),
-            parsePoint(getParamByName(params, V4)),
-            parsePoint(getParamByName(params, V5)),
-
+            parseVertices(params),
             parseDefects(defects)
     );
 }

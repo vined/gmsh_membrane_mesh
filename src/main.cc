@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <limits>
+#include <vector>
 
 #include "lib/gmsh.h"
 
@@ -34,8 +35,29 @@ int main(int argc, char *argv[]) {
     gmsh::option::setNumber("General.Terminal", 1);
     gmsh::model::add("membrane-mesh");
 
+    double lcar1 = params.defects[0].second * 0.5;
+    double lcar2 = params.defects[0].second * 0.1;
+    double eps = params.defects[0].second + (params.defects[0].second * 0.1);
+
+
     std::cout << "- Creating layers" << std::endl;
-    int membrane = factory::addBox(0, 0, 0, params.v0.first, params.v0.second, params.h_membrane);
+
+    std::vector<int> verticesTags;
+    for (std::pair<double, double> v : params.vertices) {
+        verticesTags.push_back(factory::addPoint(v.first, v.second, 0, lcar1));
+    }
+
+    std::vector<int> linesTags;
+    for (int i = 0; i < verticesTags.size() -1; i++) {
+        linesTags.push_back(factory::addLine(verticesTags[i], verticesTags[i+1]));
+    }
+    linesTags.push_back(factory::addLine(verticesTags[verticesTags.size()-1], verticesTags[0]));
+
+    int wire = factory::addWire(linesTags, -1, true);
+    int plane = factory::addPlaneSurface({wire});
+
+    std::vector<std::pair<int, int>> membrane;
+    factory::extrude({{2, plane}}, 0, 0, params.h_membrane, membrane);
 
     std::cout << "- Creating defects" << std::endl;
     int defect = factory::addCylinder(params.defects[0].first.first, params.defects[0].first.second, 0,
@@ -45,7 +67,7 @@ int main(int argc, char *argv[]) {
     std::cout << "- Cutting defects" << std::endl;
     std::vector<std::pair<int, int>> ov;
     std::vector<std::vector<std::pair<int, int>>> ovv;
-    factory::cut({{3, membrane}}, {{3, defect}}, ov, ovv, 3, true, false);
+    factory::cut({{3, membrane[1].second}}, {{3, defect}}, ov, ovv, -1, true, false);
 
 
     // std::cout << "- Adding physical groups" << std::endl;
@@ -63,9 +85,6 @@ int main(int argc, char *argv[]) {
     std::cout << "Start configuring mesh..." << std::endl;
     auto startConfiguringMesh = std::chrono::high_resolution_clock::now();
 
-    double lcar1 = params.defects[0].second * 0.5;
-    double lcar2 = params.defects[0].second * 0.1;
-    double eps = params.defects[0].second + (params.defects[0].second * 0.1);
 
     // Set mesh for base
     model::getEntities(ov, 0);
@@ -77,10 +96,6 @@ int main(int argc, char *argv[]) {
                                     params.defects[0].first.first + eps, params.defects[0].first.second + eps,
                                     params.h_membrane * 3 + eps, ov, 0);
     model::mesh::setSize(ov, lcar2);
-
-    // Set coarser mesh for hole
-//    model::getBoundary({{3, defect}}, ov, false, false, true);
-//    model::mesh::setSize(ov, lcar3);
 
     std::cout << "Done configuring mesh. Duration: " << getDuration(startConfiguringMesh) << std::endl;
 
