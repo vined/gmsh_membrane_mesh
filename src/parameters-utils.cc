@@ -38,12 +38,15 @@ bool startsWith(std::string str, std::string start) {
 }
 
 
+double toDouble(std::string val) {
+    return std::stod(val) * SCALE;
+}
+
 std::pair<std::string, std::string> readParam(std::string line) {
     return splitBy(line, KEY_SEPARATOR);
 }
 
 std::string getParamByName(std::vector<std::pair<std::string, std::string>> params, std::string name) {
-    std::cout << "Getting param for name: " << name << std::endl;
     for (std::pair<std::string, std::string> param : params) {
         if (param.first == name && !param.second.empty()) {
             return param.second;
@@ -56,28 +59,25 @@ std::string getParamByName(std::vector<std::pair<std::string, std::string>> para
 
 
 std::pair<double, double> parsePoint(std::string pointStr) {
-    std::cout << "Parse point: " << pointStr << std::endl;
     auto strPair = splitBy(pointStr, VALUES_SEPARATOR);
 
-    std::cout << "Parsed point values: " << strPair.first << " and " << strPair.first << std::endl;
     return {
-            std::stof(strPair.first),
-            std::stof(strPair.second)
+            toDouble(strPair.first),
+            toDouble(strPair.second)
     };
 };
 
 std::pair<std::pair<double, double>, double> parseCoordAndRadius(std::string pointStr) {
-    std::cout << "Parse coords: " << pointStr << std::endl;
     auto x_rest = splitBy(pointStr, VALUES_SEPARATOR);
     auto y_r = splitBy(x_rest.second, VALUES_SEPARATOR);
 
     return
             {
                     {
-                            std::stof(x_rest.first),
-                            std::stof(y_r.first)
+                            toDouble(x_rest.first),
+                            toDouble(y_r.first)
                     },
-                    std::stof(y_r.second)
+                    toDouble(y_r.second)
             };
 };
 
@@ -94,10 +94,10 @@ std::vector<std::pair<std::pair<double, double>, double>> parseDefects(std::vect
 
 parameters parseParameters(std::vector<std::pair<std::string, std::string>> params, std::vector<std::string> defects) {
     return parameters(
-            std::stof(getParamByName(params, H_SOLUTION)),
-            std::stof(getParamByName(params, H_MEMBRANE)),
-            std::stof(getParamByName(params, H_SUB_MEMBRANE)),
-            std::stof(getParamByName(params, H_HEMHOLTZ)),
+            toDouble(getParamByName(params, H_SOLUTION)),
+            toDouble(getParamByName(params, H_MEMBRANE)),
+            toDouble(getParamByName(params, H_SUB_MEMBRANE)),
+            toDouble(getParamByName(params, H_HEMHOLTZ)),
 
             parsePoint(getParamByName(params, V0)),
             parsePoint(getParamByName(params, V1)),
@@ -119,7 +119,6 @@ parameters readParameters(std::string fileName) {
 
     while (getline(paramsFile, line)) {
         if (!isCommentOrEmpty(line)) {
-            std::cout << "Push line to params: " << line << std::endl;
             params.push_back(readParam(line));
         } else if (startsWith(line, DEFECTS_START_LINE)) {
             break;
@@ -128,7 +127,6 @@ parameters readParameters(std::string fileName) {
 
     while (getline(paramsFile, line)) {
         if (!isCommentOrEmpty(line)) {
-            std::cout << "Push line to defects: " << line << std::endl;
             defects.push_back(line);
         }
     }

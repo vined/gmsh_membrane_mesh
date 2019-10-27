@@ -2,8 +2,12 @@
 #define GMSH_MEMBRANE_MESH_PARAMETERS_UTILS_H
 
 #include <cmath>
+//#include <limits>
 #include <string>
 #include <vector>
+
+
+const double SCALE = 1e9;
 
 const char KEY_SEPARATOR = '=';
 const char VALUES_SEPARATOR = ',';
@@ -72,22 +76,26 @@ struct parameters {
         defects = _defects;
     }
 
-    std::string toString() {
-        std::string str = "Parameters:\n";
-        str += H_SOLUTION + "=" + std::to_string(h_solution) + "\n"
-               + H_MEMBRANE + "=" + std::to_string(h_membrane) + "\n"
-               + H_SUB_MEMBRANE + "=" + std::to_string(h_sub_membrane) + "\n"
-               + H_HEMHOLTZ + "=" + std::to_string(h_hemholtz) + "\n"
-               + V0 + "=" + std::to_string(v0.first) + ", " + std::to_string(v0.second) + "\n"
-               + V1 + "=" + std::to_string(v1.first) + ", " + std::to_string(v1.second) + "\n"
-               + V2 + "=" + std::to_string(v2.first) + ", " + std::to_string(v2.second) + "\n"
-               + V3 + "=" + std::to_string(v3.first) + ", " + std::to_string(v3.second) + "\n"
-               + V4 + "=" + std::to_string(v4.first) + ", " + std::to_string(v4.second) + "\n"
-               + V5 + "=" + std::to_string(v5.first) + ", " + std::to_string(v5.second) + "\n"
-               + "Defects_cnt=" + std::to_string(defects.size()) + "\n"
-               + "\n";
+    void print() {
+        std::cout << "Parameters:" << std::endl;
+        std::cout << H_SOLUTION << " = " << h_solution << std::endl;
+        std::cout << H_MEMBRANE << " = " << h_membrane << std::endl;
+        std::cout << H_SUB_MEMBRANE << " = " << h_sub_membrane << std::endl;
+        std::cout << H_HEMHOLTZ << " = " << h_hemholtz << std::endl;
 
-        return str;
+        std::cout << V0 << " = " << v0.first << ", " << v0.second << std::endl;
+        std::cout << V1 << " = " << v1.first << ", " << v1.second << std::endl;
+        std::cout << V2 << " = " << v2.first << ", " << v2.second << std::endl;
+        std::cout << V3 << " = " << v3.first << ", " << v3.second << std::endl;
+        std::cout << V4 << " = " << v4.first << ", " << v4.second << std::endl;
+        std::cout << V5 << " = " << v5.first << ", " << v5.second << std::endl;
+
+        std::cout << +"Defects:" << std::endl;
+        for (auto d: defects) {
+            std::cout << "x=" << d.first.first << ", y=" << d.first.second << ", r=" << d.second << std::endl;
+
+        }
+        std::cout << +"Defects count: " << defects.size() << std::endl;
     }
 };
 
