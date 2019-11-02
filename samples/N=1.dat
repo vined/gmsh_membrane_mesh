@@ -1,6 +1,6 @@
 # -- Layers heights (m) --
 h_solution=50e-9
-h_membrane=3e-9
+h_membrane=13e-9
 h_sub_membrane=1.8e-9
 h_hemholtz=0.66e-9
 

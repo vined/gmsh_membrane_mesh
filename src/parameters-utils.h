@@ -46,7 +46,6 @@ struct parameters {
             double _h_hemholtz,
 
             std::vector<std::pair<double, double>> _vertices,
-
             std::vector<std::pair<std::pair<double, double>, double>> _defects
     ) {
         h_solution = _h_solution;
