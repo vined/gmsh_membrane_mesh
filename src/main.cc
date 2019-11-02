@@ -41,14 +41,16 @@ int main(int argc, char *argv[]) {
     gmsh::option::setNumber("Mesh.MaxNumThreads3D", 8);
     gmsh::option::setNumber("Mesh.RecombineAll", 1);
     gmsh::option::setNumber("Mesh.SurfaceFaces", 1);
-//    gmsh::option::setNumber("Mesh.CharacteristicLengthExtendFromBoundary", 0);
-//    gmsh::option::setNumber("Mesh.CharacteristicLengthFromPoints", 0);
-//    gmsh::option::setNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthExtendFromBoundary", 0);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthFromPoints", 0);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthFromCurvature", 0);
 
     gmsh::model::add("membrane-mesh");
 
-    double lcar1 = params.defects[0].second * 3.5;
-    double lcar2 = params.defects[0].second * 0.3;
+    double lcMin = params.defects[0].second * 0.4;
+    double lcMax = 100;//params.defects[0].second * 3.5;
+    double rMin = 1;
+    double rMax = 300;
     double eps = params.defects[0].second + (params.defects[0].second * 0.2);
 
 
@@ -56,7 +58,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<int> verticesTags;
     for (std::pair<double, double> v : params.vertices) {
-        verticesTags.push_back(factory::addPoint(v.first, v.second, 0, lcar1));
+        verticesTags.push_back(factory::addPoint(v.first, v.second, 0, lcMin));
     }
 
     std::vector<int> linesTags;
@@ -104,18 +106,36 @@ int main(int argc, char *argv[]) {
     auto startConfiguringMesh = std::chrono::high_resolution_clock::now();
 
 
-    // Set mesh for base
-    model::getEntities(ov, 0);
-    model::mesh::setSize(ov, lcar1);
-
-    // Set finer mesh around hole
+    std::vector<double> fields;
+    // Set finer mesh around defect
     for (auto d : params.defects) {
         model::getEntitiesInBoundingBox(d.first.first - eps, d.first.second - eps,
                                         -eps,
                                         d.first.first + eps, d.first.second + eps,
-                                        params.h_membrane + eps, ov, 0);
-        model::mesh::setSize(ov, lcar2);
+                                        params.h_membrane + eps, ov, 1);
+
+        std::vector<double> curves;
+        for (auto dimtag : ov) {
+            curves.push_back(dimtag.second);
+        }
+
+        int distanceId = model::mesh::field::add("Distance");
+        model::mesh::field::setNumber(distanceId, "NNodesByEdge", 50);
+        model::mesh::field::setNumbers(distanceId, "EdgesList", curves);
+
+        int thresholdId = model::mesh::field::add("Threshold");
+        model::mesh::field::setNumber(thresholdId, "IField", distanceId);
+        model::mesh::field::setNumber(thresholdId, "DistMin", rMin);
+        model::mesh::field::setNumber(thresholdId, "DistMax", rMax);
+        model::mesh::field::setNumber(thresholdId, "LcMin", lcMin);
+        model::mesh::field::setNumber(thresholdId, "LcMax", lcMax);
+        model::mesh::field::setNumber(thresholdId, "StopAtDistMax", 1);
+        fields.push_back(thresholdId);
     }
+
+    int minId = model::mesh::field::add("Min");
+    model::mesh::field::setNumbers(minId, "FieldsList", fields);
+    model::mesh::field::setAsBackgroundMesh(minId);
 
     std::cout << "Done configuring mesh. Duration: " << getDuration(startConfiguringMesh) << std::endl;
 
@@ -135,7 +155,7 @@ int main(int argc, char *argv[]) {
 
     // Start Gmsh GUI
     gmsh::fltk::run();
-    // Must be called after finishing to use GmshAPI
+    // Must be called after finishing useing GmshAPI
     gmsh::finalize();
 
     return 0;
