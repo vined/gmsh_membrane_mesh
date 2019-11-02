@@ -69,19 +69,12 @@ int main(int argc, char *argv[]) {
     int plane = factory::addPlaneSurface({wire});
 
     std::vector<std::pair<int, int>> membrane;
-//    factory::extrude({{2, plane}}, 0, 0, params.h_membrane, membrane);
 
 
     std::cout << "- Creating defects" << std::endl;
 
     std::vector<std::pair<int, int>> defects;
     for (auto d : params.defects) {
-//        int cylinder = factory::addCylinder(
-//                d.first.first, d.first.second, 0,
-//                0, params.h_membrane, params.h_membrane*2.,
-//                d.second
-//        );
-//        defects.push_back({3, cylinder});
         int circle = factory::addDisk(d.first.first, d.first.second, 0, d.second, d.second);
         defects.push_back({2, circle});
     }
@@ -91,7 +84,6 @@ int main(int argc, char *argv[]) {
     std::vector<std::vector<std::pair<int, int>>> ovv;
 
 
-//    factory::cut({{3, membrane[1].second}}, defects, ov, ovv, -1, false, true);
     factory::cut({{2, plane}}, defects, ov, ovv, -1, false, true);
     factory::extrude({{2, ov[0].second}}, 0, 0, params.h_membrane, membrane, {}, {}, true);
     factory::remove({{2, plane}});
